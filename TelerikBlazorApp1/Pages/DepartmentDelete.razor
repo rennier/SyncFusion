@@ -1,0 +1,47 @@
+﻿@using TelerikBlazorApp1.Data
+@page "/departmentdelete/{DeptID:int}"
+@inject IDepartmentService DepartmentService
+@inject NavigationManager NavigationManager
+
+
+<h1 style="text-align:center">Delete a Department</h1>
+<p style="color:red;text-align:center">Are you sure you want to permanently delete this department? There is no undo!</p>
+
+<table class="genform">
+	<div class='form-group'>DeptName:@department.DeptName</div>
+<div class='form-group'>DeptLocation:@department.DeptLocation</div>
+
+    <tr>
+        <td colspan="2" style="text-align:center">
+            <button class="btn btn-primary" @onclick="@Delete">Delete</button>
+            <button class="btn btn-secondary" @onclick="@Cancel">Cancel</button>
+        </td>
+    </tr>
+</table>
+
+@code {
+    // Create a new, empty Department object
+    Department department = new Department();
+
+    [Parameter]
+    public int DeptID { get; set; }
+
+    //Executes on page open..
+    protected override async Task OnInitializedAsync()
+    {
+        department = await DepartmentService.Department_GetOne(DeptID);
+    }
+    //Executes if user confirms the deletion.
+    protected async Task Delete()
+    {
+        // Delete the row and go back to the list. 
+        // In the SProc you can set IsActive to 0 rather than physically delete.
+        await DepartmentService.DepartmentDelete(DeptID);
+        NavigationManager.NavigateTo("/departmentlist");
+    }
+    // Executes when user clicks the Cancel button.
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("/departmentlist");
+    }
+}

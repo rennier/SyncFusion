@@ -1,0 +1,79 @@
+﻿ 
+
+@page "/t"
+@using Syncfusion.Blazor.Grids
+
+@inject IDepartmentService DepartmentService
+@inject NavigationManager NavigationManager
+
+<h2>DataGrid</h2>
+<br/>
+<div id = "ControlRegion">
+<SfGrid  ID="Grid" DataSource="@departments"  @ref="Grid" AllowPaging="true" AllowFiltering="true" AllowReordering="true" AllowResizing="true" AllowGrouping="true" AllowExcelExport="true" AllowSelection="true"
+              AllowSorting="true" Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","Search"})" Height="315" Width="900">        
+        <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
+        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.FilterBar"></GridFilterSettings>
+    <GridPageSettings PageSizes="true"></GridPageSettings>
+	<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+        <GridEvents OnToolbarClick="ToolbarClick" TValue="Department"></GridEvents>
+        <GridColumns>
+            <GridColumn Type='ColumnType.CheckBox' Width="50"></GridColumn>
+            <GridColumn Field=@nameof(Department.DeptID) HeaderText="Department ID" IsPrimaryKey="true" ValidationRules="@(new ValidationRules{ Required=true })" TextAlign="TextAlign.Right" Width="120"></GridColumn>
+            <GridColumn Field=@nameof(Department.DeptLocation) HeaderText="Department location"   Width="120"></GridColumn>
+            <GridColumn Field=@nameof(Department.DeptName) HeaderText=" Department name"  TextAlign="TextAlign.Right" Width="130" Type="ColumnType.Date"></GridColumn>
+    
+        </GridColumns>
+    </SfGrid>
+</div>
+<br/>
+<div>
+  <h3>Selected Features:</h3>
+    <ul class="ulstyle">
+      <li class="list"> Exporting - Excel Export</li>
+      <li class="list"> Grouping</li>
+      <li class="list"> Sorting</li>
+      <li class="list"> Filtering - Filter Bar</li>
+      <li class="list"> Selection</li>
+      <li class="list"> Reordering</li>
+      <li class="list"> Paging</li>
+      <li class="list"> Resizing</li>
+      <li class="list"> Searching</li>
+      <li class="list"> Checkbox Selection</li>
+      <li class="list"> Editing - Normal</li>
+      <li class="list"> Theme - Bootstrap v5</li>
+    </ul>
+</div>
+<br/>
+<style>
+    .ulstyle {
+        margin: 0px;
+        padding-left: 20px;
+        display: inline-block;
+    }
+    .list {
+    float: left;
+    line-height: 20px;
+    margin: 10px;
+    min-width: 200px;
+    }
+</style>
+@code{
+    //public List<Order> Orders { get; set; }
+    SfGrid<Department> Grid;
+      IEnumerable<Department> departments;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        //Populate the list of department objects from the Department table.
+        departments = await DepartmentService.DepartmentList();
+    }
+    
+    public void ToolbarClick(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Id == "Grid_excelexport")
+        {
+            this.Grid.ExcelExport();
+        }
+    }
+  
+}

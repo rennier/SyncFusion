@@ -1,0 +1,40 @@
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Syncfusion.Blazor;
+using TelerikBlazorApp1.Data;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+ 
+builder.Services.AddSyncfusionBlazor();
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NjI1OTczQDMxMzgyZTMxMmUzMFNMMURUYlJLTlBJKzd1UnVjKzFVOUtmTlA0aWxNNzNSZC9xY3dDU3hWZ289;NjI1OTc0QDMxMzgyZTMxMmUzME1GMTc1bnlqSGpocGo4RGVtTzUyQkZEcmZEeFhkdTFzZkZCZGp3bkI1THM9;NjI1OTc1QDMxMzgyZTMxMmUzMEZXcE53MTN6c3ZDcjVtdFlXT3BkVXFJS0RzdWNJYThuNUxhSlZQc3NPVFU9;NjI1OTc2QDMxMzgyZTMxMmUzMEd3OUlkVjdBRUMwUW55YjVSMjFiT1JmZnZ1L0d5WXcvTzRiZjFqWHgzYU09;NjI1OTc3QDMxMzgyZTMxMmUzMG15VVVCaG15dWV6M1QxVEVQZDE4OU83eFBLU2dja1JSY2ZreW5aSXYxak09;NjI1OTc4QDMxMzgyZTMxMmUzMFdJNlhoZkM1bklVd1Y0T2Z5NzdBQWcrNmlPSS80eHZ1VVZnaWhFbHRjd1k9;NjI1OTc5QDMxMzgyZTMxMmUzMGZZYTQ0WHhUc0FIWTZoWS9FV3VESFEyN09qUVo1Ullqb2piY2s5NHByYUk9;NjI1OTgwQDMxMzgyZTMxMmUzMFd2V1FWM2ZEQUFOSGhyMGR1cXFQQjdZVmplUDJQYTJFUFJmbFZ5enltUW89;NjI1OTgxQDMxMzgyZTMxMmUzMGJWZW9neGdheXlmbFFYV3RFZmFWZGs2eG1sZTBORzZaY1dIdVp5SVFXKzg9;NjI1OTgyQDMxMzgyZTMxMmUzMG01SkJDVklrbkYyQ0Fza1hiUXZLOEJ6TC9BV3NaQnpDVm1aN0lhVGIyc3M9;NT8mJyc2IWhia31ifWN9YGVoYmF8YGJ8ampqanNiYmlmamlmanMDHmghNj09OjYhMj4/PDA7Mj0TND4yOj99MDw+");
+
+//Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mgo+DSMBaFt/QHFqVVhkW1pFdEBBXHxAd1p/VWJYdVt5flBPcDwsT3RfQF9jTXxUdkNmWHtbeHVUQw==;Mgo+DSMBPh8sVXJ0S0d+XE9AcVRDX3xKf0x/TGpQb19xflBPallYVBYiSV9jS3xTckdkWXlbcXBQTmJeVA==;ORg4AjUWIQA/Gnt2VVhhQlFaclhJXGFWfVJpTGpQdk5xdV9DaVZUTWY/P1ZhSXxRdkFhXn9YdXVRQ2hfU0E=;NjI1OTY1QDMyMzAyZTMxMmUzMExFMS9vWTRnbDZnYWJIc1NzRk16aC9sYTdsTmQwZTJnRkhLR1BGaG9IdW89;NjI1OTY2QDMyMzAyZTMxMmUzMGttc0twWURrK1JUVU56bWtpVXBpNFdZRVkyUFpERTY1bkxCMThQQWU3U289;NRAiBiAaIQQuGjN/V0Z+XU9EaFtFVmJLYVB3WmpQdldgdVRMZVVbQX9PIiBoS35RdEVnW3hednFUQmVUWExz;NjI1OTY4QDMyMzAyZTMxMmUzMFZHTkp3NjdpaTR5M1QyZ0NzNW1RaGhuNEFPMHBkSzBLK3RLRE5UTndtR0U9;NjI1OTY5QDMyMzAyZTMxMmUzMGtpbVRwVVdEV2MrSHN3M21aNVhvZ3pJc3BBekJUS1RRbDYyLzJpdVNjd2M9;Mgo+DSMBMAY9C3t2VVhhQlFaclhJXGFWfVJpTGpQdk5xdV9DaVZUTWY/P1ZhSXxRdkFhXn9YdXVRQ2laUUE=;NjI1OTcxQDMyMzAyZTMxMmUzMGpUdlJ2VVpQUjdLdUxCL0FPVUk5NnZCQXNJdmI1ZWZ5L1FyR2RTTXg2OGc9;NjI1OTcyQDMyMzAyZTMxMmUzMG90V21neVBZa0VxbzJTWUZpSFM1Vnc3Qmlnd3NKY1RMNlNoYWtCUG1mY1U9");
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+
+//SQL database connection(name defined in appsetting.json)
+var sqlConnectionConfiguration = new SqlConnectionConfiguration(builder.Configuration.GetConnectionString("SQLDB"));
+builder.Services.AddSingleton(sqlConnectionConfiguration);
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
+
+app.Run();

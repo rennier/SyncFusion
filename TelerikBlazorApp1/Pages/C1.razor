@@ -1,0 +1,83 @@
+﻿@page "/r"
+
+@using TelerikBlazorApp1.Data
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Grids
+
+ 
+@inject IDepartmentService DepartmentService
+@inject NavigationManager NavigationManager
+
+ 
+@*//Code for Pdf and Excel export button*@
+<SfButton OnClick="PdfExport" Content="Pdf Export"></SfButton>
+<SfButton OnClick="ExcelExport" Content="Excel Export"></SfButton>
+
+
+@*//Code for Sorting,SFiltering,grouping,excel and pdf features*@
+<SfGrid @ref="ordergrid"
+        DataSource="@departments" AllowPaging="true"
+        AllowSorting="true"
+        AllowFiltering="true"
+        AllowGrouping="true"
+        AllowPdfExport="true"
+        AllowExcelExport="true">
+    <GridPageSettings PageSize="5" PageSizes="true"></GridPageSettings>
+   
+ 
+    <GridColumns>
+        <GridColumn Field="@nameof(Department.DeptID)"
+                    HeaderText="Department ID"
+                    TextAlign="TextAlign.Right"
+                    Width="120">
+        </GridColumn>
+
+        <GridColumn Field=@nameof(Department.DeptName)
+                    HeaderText=" Department Name"
+                    TextAlign="TextAlign.Right"
+                    Width="130">
+        </GridColumn>
+
+        <GridColumn Field=@nameof(Department.DeptLocation)
+                    HeaderText="Department Location"
+                    Width="150">
+        </GridColumn>
+
+
+
+    </GridColumns>
+</SfGrid>
+
+
+
+@code{
+    //public List<Order> Orders { get; set; }
+    IEnumerable<Department> departments;
+
+
+     ////code for declaring @ref="ordergrid"
+     SfGrid<Department> ordergrid;
+
+    
+
+   
+     protected override async Task OnInitializedAsync()
+    {
+        //Populate the list of department objects from the Department table.
+        departments = await DepartmentService.DepartmentList();
+    }
+
+     ////code for  PDF Export  feature ,when button is clicked
+    public async Task PdfExport()
+    {
+        await this.ordergrid.PdfExport();
+    }
+    //code for  Excel Export  feature ,when button is clicked
+    public async Task ExcelExport()
+    {
+        await this.ordergrid.ExcelExport();
+    }
+
+    
+
+}

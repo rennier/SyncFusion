@@ -1,0 +1,169 @@
+﻿@using TelerikBlazorApp1.Data
+@page "/departmentlist"
+@inject IDepartmentService DepartmentService
+
+<h1 style="text-align:center">Department List</h1>
+<table id="search-add">
+<tr>
+<td>
+    <!-- Calling departmentaddedit with DeptID of zero configures page for Insert -->
+    <a href="/departmentaddedit/0"><span class="oi oi-plus"></span>Add a Department</a>
+    </td>
+    <td>
+    <span class="oi oi-magnifying-glass" style="color:blue;"></span>
+    <input id="tbSearch" @bind-value="@SearchTerm"  @bind-value:event="oninput" @onkeyup="SearchKeyPress" />
+    &nbsp;<button @onclick="@Search" class="btn btn-primary">Search</button>
+    </td>
+    </tr>
+
+</table>
+<div id="list" style="display:@Listdisplay">
+@if (departments == null)
+{
+    <p style="text-align:center">
+        <img src="../images/loader.gif" />
+    </p>
+}
+else
+{
+    <table class="genlist">
+        <tr>
+                <!-- Indicates what rows below are showing -->
+                <td colspan="7" style="text-align:left;font-weight:bold;font-size:120%">@Nowshowing</td>
+            </tr>
+        <tr>
+            <th>Edit</th>
+		<th>DeptName</th><th>DeptLocation</th>
+            <th>Delete</th>
+        </tr>
+        @foreach (var department in departments)
+        {
+    <tr>
+        <td>
+            <!-- Calling departmentaddedit with DeptID configures page for Update of that table row -->
+            <a href="departmentaddedit/@department.DeptID">
+                <span class="oi oi-pencil" style="color:blue;"></span>
+                <!-- If you prefer images, comment below and put images in wwwroot/images folder 
+                <img src="../images/iEdit.png" />-->
+            </a>
+        </td>
+		<td>@department.DeptName</td><td>@department.DeptLocation</td>
+        <!-- If you want to use a checkmark for a IsActive field, here's the basic code  -->
+        <!-- You have to uncomment and get the field name right -->
+        <!-- <td> -->
+            <!-- Provide your own images in wwwroot/images folder -->
+       <!--     @*Show a green check for active department...*@ -->
+       <!--     @if (department.IsActive) -->
+       <!--     { -->
+       <!--     <span class="oi oi-check" style="color:green;"></span> -->
+            <!-- If you prefer images, comment below and put images in wwwroot/images folder 
+       <!--         <img src="../images/iGreenCheck.png" /> -->
+       <!--     } -->
+       <!--     @* ...a red X otherwise *@ -->
+       <!--     else -->
+       <!--     { -->
+       <!--    <span class="oi oi-x" style="color:red;"></span> -->
+       <!--      If you prefer images, comment below and put images in wwwroot/images folder -->
+       <!--         <img src="../images/iRedX.png" />-->
+       <!--     }-->
+       <!-- </td>-->
+        @* This column for deletes *@
+        
+        <td>
+            <a href="departmentdelete/@department.DeptID">
+            <span class="oi oi-trash" style="color:red;"></span>
+            <!-- If you prefer images, uncomment the img tag and put images in wwwroot/images
+                <img src="../images/iTrash.png" alt="Delete" title="Delete" /> -->
+            </a>
+        </td>
+    </tr>
+        }
+    </table>
+}
+</div>
+<!-- Error message for to few or to many in search results -->
+<div class="error" style="display:@Errordisplay">
+    <h2>@SearchError</h2>
+</div>
+
+@code {
+    //Variable used for searching (tbSearch)
+    public string SearchTerm { get; set; }
+    public string SearchError = "";
+    public string Listdisplay = "block";
+    public string Errordisplay = "none";
+    public string Nowshowing = "Recent Entries";
+    // Create an empty list, named departments, of empty Department objects.
+    IEnumerable<Department> departments;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        //Populate the list of department objects from the Department table.
+        departments = await DepartmentService.DepartmentList();
+    }
+    
+    //Make pressing ENTER in the search box the same as clicking the Search button.
+    private void SearchKeyPress(KeyboardEventArgs ev)
+    {
+        if (ev.Key == "Enter")
+        {
+            //System.Diagnostics.Debug.WriteLine(ev.Key);
+            Search();
+        }
+    }
+    
+    //Do the search
+    private async void Search()
+    {
+    //Forces the progress indicator to show while searching.
+    if (SearchTerm.Length > 0 ) {
+        departments = null;
+        Nowshowing = "Contains: " + SearchTerm;
+        StateHasChanged();
+        //Does the search and stores result in departments collection.
+        departments  = await DepartmentService.DepartmentSearch(SearchTerm);
+        var howmany = departments.Count();
+        // Show results or error depending on how many found.
+          switch (howmany)
+          {
+            case int n when (n < 1):
+                errorMessage("Not found, please try another search");
+                break;
+            case int n when (n > 250):
+                errorMessage("More than 250 results, please try a different search.");
+                break;
+            default:
+                //Show the search results and count.
+                Nowshowing += " (" + howmany + ")";
+                errorMessage("");
+                StateHasChanged();
+                break;
+          } 
+        } else {
+            //If no search term, just do the default list.
+            Nowshowing = "Recent entries";
+            departments = await DepartmentService.DepartmentList();
+            StateHasChanged();
+        }
+
+        //Show or hide the search results error message.
+        void errorMessage(string msgText)
+        {
+            if (msgText.Length > 0)
+            {
+                Listdisplay = "none";
+                Errordisplay = "block";
+                SearchError = msgText;
+            }
+            else
+            {
+                Listdisplay = "block";
+                Errordisplay = "none";
+                SearchError = "";
+            }
+            //Re-render the page.
+            StateHasChanged();
+        }
+        //System.Diagnostics.Debug.WriteLine(howmany);
+    }
+}

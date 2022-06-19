@@ -1,0 +1,86 @@
+﻿@using TelerikBlazorApp1.Data
+@page "/departmentaddedit/{DeptID:int}"
+@inject IDepartmentService DepartmentService
+@inject NavigationManager NavigationManager
+
+<h1 style="text-align:center">@pagetitle</h1>
+<EditForm Model="@department" OnValidSubmit="@DepartmentSave" class="form-inline">
+<div class="container">
+        <!-- You may want to change some type="" choices to better suit your own data -->
+        <div class='row'>
+<div class='col-2'>
+<label for = 'DeptName'>DeptName:</label>
+</div>
+<div class='col-4'>
+<InputText @bind-Value = "department.DeptName" class='form-control' style='width:100%;' id = 'DeptName'/></div>
+<div class='col-2'>
+<label for = 'DeptLocation'>DeptLocation:</label>
+</div>
+<div class='col-4'>
+<InputText @bind-Value = "department.DeptLocation" class='form-control' style='width:100%;' id = 'DeptLocation'/></div>
+</div>
+
+
+<div class="row">
+<div class="col-12 errormsg">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+</div>
+</div>
+<div class="row">
+<div class="col-12 buttons">
+<button class="btn btn-primary">@buttontext</button>
+<button class="btn btn-secondary" @onclick="@Cancel">Cancel</button>
+</div>
+</div>
+</div>
+</EditForm>
+
+@code {
+   // Create a new, empty Department object
+   Department department = new Department();
+
+    [Parameter]
+    public int DeptID { get; set; }
+
+    // Set default page title and button text
+    public string pagetitle = "Add a Department";
+    public string buttontext = "Add";
+
+    //Executes on page open, set defaults on page.
+    protected override async Task OnInitializedAsync()
+    {
+        // ============ If the passed-in DeptID is zero, assume new Department.
+        if (DeptID == 0)
+        {
+            // Use this block to set for defaults (optional)
+        }
+        else
+        {
+            department = await DepartmentService.Department_GetOne(DeptID);
+            // Change page title and button text since this is an edit.
+            pagetitle = "Edit Department";
+            buttontext = "Update";
+        }
+    }
+    // Executes OnValidSubmit of EditForm above.
+    protected async Task DepartmentSave()
+    {
+        if (department.DeptID == 0)
+        {
+            // Insert if DeptID is zero.
+            await DepartmentService.DepartmentInsert(department);
+        }
+        else
+        {
+            // Update if DeptID not 0
+            await DepartmentService.DepartmentUpdate(department);
+        }
+        NavigationManager.NavigateTo("/departmentlist");
+    }
+    //Executes if user clicks the Cancel button.
+    protected void Cancel()
+    {
+        NavigationManager.NavigateTo("/departmentlist");
+    }
+}
